@@ -6,7 +6,7 @@ import core.Visit;
 import java.sql.*;
 import java.sql.Date;
 import java.io.*;
-import java.math.BigDecimal;
+
 
 
 
@@ -24,7 +24,7 @@ public class VisitDAO {
 		
 		// connect to database
 		myConn = DriverManager.getConnection(dburl, user, password);
-		System.out.println("DB connection successful to: " + dburl);		
+		System.out.println("DB from VisitDAO connection successful to: " + dburl);		
 	}
 	
 	// get all visit history
@@ -44,6 +44,40 @@ public class VisitDAO {
 			}
 			
 			return list;		
+		}
+		finally {
+			close(myStmt, myRs);
+		}
+	}
+	
+	public int getCurrentVisit_ID() throws Exception {	
+		Statement myStmt = null;
+		ResultSet myRs = null;
+		
+		try {
+			myStmt = myConn.createStatement();
+			myRs = myStmt.executeQuery("SELECT * FROM Visit ORDER BY Visit_ID DESC LIMIT 1");
+			myRs.next();
+			
+			int visit_id = myRs.getInt("Visit_ID");
+			return visit_id;
+			
+		}
+		finally {
+			close(myStmt, myRs);
+		}
+	}
+	
+	public Visit getCurrentVisitInfo(int visit_id) throws Exception {	
+		Statement myStmt = null;
+		ResultSet myRs = null;
+		
+		try {
+			myStmt = myConn.createStatement();
+			myRs = myStmt.executeQuery("SELECT * FROM Visit WHERE visit_id = '"+visit_id+"'");
+			myRs.next();
+			Visit tempVisit = convertRowToVisit(myRs);
+			return tempVisit;	
 		}
 		finally {
 			close(myStmt, myRs);
@@ -99,8 +133,7 @@ public class VisitDAO {
 		}
 		finally {
 			close(myStmt, null);
-		}
-		
+		}	
 	}
 	
 	private Visit convertRowToVisit(ResultSet myRs) throws SQLException {
@@ -142,13 +175,16 @@ public class VisitDAO {
 		close(null, myStmt, myRs);		
 	}
 	
-//	public static void main(String[] args) throws Exception {
-//		
-//		//this part is for testing right api call
-//		
-//		VisitDAO dao = new VisitDAO();
+	public static void main(String[] args) throws Exception {
+		
+		//this part is for testing right api call
+		
+		VisitDAO dao = new VisitDAO();
 //		dao.addNewVisit();
-//
-//		System.out.println(dao.getAllVisit());
-//	}
+		
+
+		System.out.println(dao.getCurrentVisit_ID());
+	}
 }
+
+
